@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #222;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-top: 30px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        p:hover {
+            transform: scale(1.05);
+        }
+
+        input {
+            width: 350px;
+            padding: 12px;
+            font-size: 18px;
+            margin: 10px 0;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: #0056b3;
+            outline: none;
+            box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.5);
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        #divData {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .weather-info {
+            color: #333;
+        }
+
+        .weather-info p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .error {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .section {
+            text-align: left;
+            margin-top: 40px;
+            padding: 25px;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            max-width: 800px;
+            margin: 30px auto;
+            text-align: center;
+        }
+
+        .dropdown-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .rotate {
+            transform: rotate(180deg);
+        }
+
+        .content {
+            display: none;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Check</h1>
+    <input type="text" id="cityIds" placeholder="Enter city name" oninput="this.value = this.value.toUpperCase()">
+    <button onclick="fetchData()">Submit</button>
+
+    <div id="divData">
+        <div class="weather-info">
+            <h2 id="cityName"></h2>
+            <p><strong>Temperature:</strong> <span id="temp"></span> °F</p>
+            <p><strong>Humidity:</strong> <span id="humidity"></span> %</p>
+            <p><strong>Pressure:</strong> <span id="pressure"></span> hPa</p>
+            <p><strong>Weather:</strong> <span id="weather"></span></p>
+        </div>
+        <p id="errorMessage" class="error"></p>
+    </div>
+
+    <div class="section">
+        <h2 onclick="toggleContent('ps', this)">Project Summary<span class="dropdown-icon">▼</span></h2>
+        <div id="ps" class="content">
+        <p>Developed a website using HTML, CSS, and JavaScript (Node.js), and utilized an open-source weather API to pull weather information aligned to a user's searched city. Utilized DynamoDB in AWS to store searched cities and provide a popup alert on the website of the total number of times a specific city has been searched.</p>
+        </div>
+        <h2 onclick="toggleContent('vc&pipeline', this)">Version Control and CI/CD Pipeline <span class="dropdown-icon">▼</span></h2>
+        <div id="vc&pipeline" class="content">
+        <p>Used GitHub for version control of this weather project. Within GitHub, I leveraged GitHub Actions for a secure CI/CD pipeline. Within this CI/CD pipeline, I created a YAML file to securely and automatically deploy my website to an AWS EC2 service. SecDevOps tactics implemented included GitHub secrets to hold and access my AWS EC2 credentials and weather API key securely in the YAML file. I also used <code>npm audit</code> to check for vulnerabilities from the installed dependencies. For future scope, I plan to implement security scanning tools such as SonarQube for code analysis.</p>
+        </div>
+        <h2 onclick="toggleContent('EC2', this)">Accessing EC2 instance remotely<span class="dropdown-icon">▼</span></h2>
+        <div id="EC2" class="content">
+        <p>I used a Secure Shell (SSH) for remote access to EC2 instance on bash terminal. From there, I'm able to view the essential files and packages for my website due to the CI/CD pipeline transferring the GitHub repository folder over to this EC2 instance.</p>
+        </div>
+        <h2 onclick="toggleContent('sec', this)">AWS EC2 Setup and Security<span class="dropdown-icon">▼</span></h2>
+        <div id="sec" class="content">
+        <p>Set up an elastic public IP address for available access to the website hosted on an EC2 instance. The website must be accessed using the EC2's public IP address with the Node.js server's port number, e.g., <code>http://&lt;public_ip:portNum&gt;</code>. Ensured the public address became static by utilizing Elastic IPs in AWS. Would use the route 53 AWS service for website's DNS set up instead of public ip address/node server port syntax (http://<public_ip:portNum>) for monthly payments</p>
+        
+        <h3>MFA</h3>
+        <p>Further steps included implementing security controls to improve cloud security structure, such as MFA logins for all users accessing the AWS platform.
+            
+        <h3>IAM</h3>    
+        <p>IAM roles/policies implemented as well to ensure least privilege access was set for users. Familiarized myself with IAM by creating users with MFA, assigning them to different groups such as cloud admins/database Analyst, database admins, etc. Assigned policies for each group tailored to least privilege access based on requirements for the group. To then create a role allowing EC2 to have full access to DynamoDB for assistance with my website hosted on EC2 instance.</p>
+        
+        <h3>Security Groups and CloudWatch</h3>
+        <p>Network security groups configured for inbound/outbound traffic.</p>
+        <p>Utilizing CloudWatch to monitor EC2 instance/website. Have set up alarms aligned to key metrics such as CPU utilization going over a threshold.</p>
+        
+        <p>Would like to use CloudTrail for auditing trails for AWS services in future scope. Would be great to use CloudTrail to monitor and analyze IAM changes and access activity.
+            Create alerts for suspicious events, like login attempts from unknown regions.
+            </p>
+        </div>
+
+        <h2 onclick="toggleContent('backup', this)">Backup capabilities<span class="dropdown-icon">▼</span></h2>
+        <div id="backup" class="content">
+        <p>Backup capabilities such as AMI in AWS to create snapshots of instances for backup or cloning.</p>
+        </div>
+        
+        
+    </div>
+
+    <script>
+        // Add event listener for "Enter" key
+        document.getElementById('cityIds').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                fetchData();
+            }
+        });
+
+        // Toggle function for each header that contains content
+        function toggleContent(sectionId, header) {
+            const content = document.getElementById(sectionId);
+            const icon = header.querySelector('.dropdown-icon');
+
+            if (content.style.display === "block") {
+                content.style.display = "none";
+                icon.classList.remove("rotate");
+                icon.innerHTML = "▼";
+            } else {
+                content.style.display = "block";
+                icon.classList.add("rotate");
+                icon.innerHTML = "▲";
+            }
+        }
+
+        async function fetchData() {
+            const city = document.getElementById('cityIds').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            const divData = document.getElementById('divData');
+
+            // Clear any previous error message and hide data
+            errorMessage.textContent = '';
+            divData.style.display = 'none';
+
+            if (!city) {
+                displayError("City name cannot be empty. Please enter a valid city.");
+                return;
+            }
+
+            try {
+                const weatherResponse = await fetch(`/weather?city=${city}`);
+                const weatherData = await weatherResponse.json();
+
+                if (weatherResponse.ok) {
+                    displayData(weatherData);
+                    const countResponse = await fetch(`/searchCount?city=${city}`);
+                    const countData = await countResponse.json();
+                    alert(`The city "${city}" has been searched ${countData.count} time(s)!`);
+                } else {
+                    displayError(weatherData.error || 'Error fetching weather data');
+                }
+            } catch (error) {
+                displayError("An unexpected error occurred. Please try again later.");
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function displayData(data) {
+            const divData = document.getElementById('divData');
+            const errorMessage = document.getElementById('errorMessage');
+
+            errorMessage.textContent = '';
+            document.getElementById('cityName').textContent = `Weather in ${data.name}`;
+            document.getElementById('temp').textContent = data.main.temp;
+            document.getElementById('humidity').textContent = data.main.humidity;
+            document.getElementById('pressure').textContent = data.main.pressure;
+            document.getElementById('weather').textContent = data.weather[0].description;
+            divData.style.display = 'block';
+        }
+
+        function displayError(message) {
+            const divData = document.getElementById('divData');
+            const errorMessage = document.getElementById('errorMessage');
+            divData.style.display = 'block';
+            errorMessage.textContent = message;
+        }
+    </script>
+</body>
+</html>

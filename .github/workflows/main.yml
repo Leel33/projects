@@ -1,0 +1,88 @@
+name: Deploy to EC2 via SSH
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: weatherAPI
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Debug Working Directory
+      run: |
+        echo "Current Directory: $(pwd)"
+        echo "Contents:"
+        ls -la
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+   
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run npm audit
+      run: npm audit --production
+
+    - name: Archive the application
+      run: tar -czf weather-app.tar.gz *
+
+    - name: Check Archive File Size
+      run: ls -lh weather-app.tar.gz
+
+    - name: Check Permissions
+      run: ls -l weather-app.tar.gz
+
+    - name: Ensure target directory exists on EC2
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          mkdir -p ~/weather-app
+
+    - name: Transfer files to EC2
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        debug: true
+        source: weatherAPI/weather-app.tar.gz
+        target: ~/weather-app
+    
+    - name: Install Node.js and PM2 on EC2
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo npm install -g pm2
+
+    - name: Deploy Weather App
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd weather-app/weatherAPI
+          tar -xzf weather-app.tar.gz 
+          echo "ApiKey=${{ secrets.WEATHER_API_KEY }}" >.env
+          ls -la
+          npm install
+          npm install aws-sdk
+          pm2 restart all || pm2 start index.js --name weatherAPI

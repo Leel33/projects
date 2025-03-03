@@ -1,0 +1,27 @@
+Amazon Q Developer Workshop 
+
+Generative AI is a capability that creates new content and artifacts such as text, code, images, and video unike traditional AI systems that analyze data instead of producing human-like outputs. \
+Worked on different tasks to maintain, develop, and troubleshoot an electronic wallet application, named E-wallet. Used generative AI tools and applied development concepts to various phases of SDLC. 
+E-Wallet use cases from this workshop:
+As a customer, I want to see my current balance in a given currency. 
+As a customer, I want to list my current balances in all currencies . 
+As a customer, I want to top up my E-wallet using different currencies. 
+As a customer, I want to transfer money to an E-wallet that belongs to another customer.
+As a customer, I want to withdraw money from my E-wallet into my bank account using international bank account Number (IBAN).
+As a customer, I want to use my E-wallet as a payment method for online shopping 
+
+Utilized AWS workshop studio 
+Configured IDE
+- Visual Studio IDE 
+- Amazon Q extension
+- Python 
+- Git
+- AWS CLI
+
+Fixed code
+Optimized Code
+Created Code
+Explained code
+Q chat, similar to chat GPT for code questions I can prompt up
+Utilized AI to enhance coding development 
+
